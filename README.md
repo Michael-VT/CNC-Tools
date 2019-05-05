@@ -1,7 +1,7 @@
 # CNC-Tools
 
 ### Tools to generate G-code by parameters
-> ### Tools to generate G-code by parameters
+> ### Программа для генерации G-code по параметрам
 
 <br />
 
