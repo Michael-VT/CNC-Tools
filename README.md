@@ -56,3 +56,11 @@ The result shown in the bottom left window, you can select to copy for further u
 * **Анимация** - if checked, upon completion of the preparation of commands, the processing process is slowly drawn. The interval between the lines in milliseconds is given below / если стоит галочка, то по завершению подготовки команд медленно прорисовывается процесс обработки. Интервал между линиями в миллисекундах задается ниже
 
 * **Скорость анимации мсек** - delay in milliseconds when animating between drawing each command / задержка в миллисекундах при анимации между рисованиями каждой из команд
+
+* **Примеры трассы выборок** - Square sample / Квадратная выборка, Large square sample / Большая квадратная выборка, Hex Sampling / Шестигранная выборка.
+
+<img src="view01.png" width="300" style="float:right"/> 
+
+<img src="view02.png" width="300" style="float:right"/>
+
+<img src="view03.png" width="300" style="float:right"/>
