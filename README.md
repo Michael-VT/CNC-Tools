@@ -57,10 +57,8 @@ The result shown in the bottom left window, you can select to copy for further u
 
 * **Скорость анимации мсек** - delay in milliseconds when animating between drawing each command / задержка в миллисекундах при анимации между рисованиями каждой из команд
 
-* **Примеры трассы выборок** - Square sample / Квадратная выборка, Large square sample / Большая квадратная выборка, Hex Sampling / Шестигранная выборка.
+* **Примеры трассы выборок** - Large square sample / Большая квадратная выборка, Hex Sampling / Шестигранная выборка.
 
-<img src="view01.png" width="300" style="float:right"/> 
+<img src="view02.png" width="600" style="float:right"/>
 
-<img src="view02.png" width="300" style="float:right"/>
-
-<img src="view03.png" width="300" style="float:right"/>
+<img src="view03.png" width="600" style="float:right"/>
