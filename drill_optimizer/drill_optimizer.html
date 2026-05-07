@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNC-Tools — PCB Drill Optimizer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; }
+
+    /* Header */
+    .header { background: #1a237e; color: #fff; padding: 8px 16px; display: flex; align-items: center; gap: 12px; }
+    .header h1 { font-size: 16px; font-weight: 600; }
+    .header a { color: #90caf9; text-decoration: none; font-size: 12px; }
+
+    /* Main layout */
+    .main { display: flex; height: calc(100vh - 36px); }
+
+    /* Left panel */
+    .left-panel { width: 340px; min-width: 300px; background: #fff; border-right: 1px solid #ddd; overflow-y: auto; padding: 8px; }
+    .panel-section { margin-bottom: 12px; border: 1px solid #e0e0e0; border-radius: 4px; }
+    .panel-section-header { background: #f5f5f5; padding: 6px 10px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .panel-section-body { padding: 8px 10px; }
+
+    /* File upload */
+    #drop-zone { border: 2px dashed #bbb; border-radius: 4px; padding: 20px; text-align: center; color: #777; cursor: pointer; font-size: 13px; }
+    #drop-zone.drag-over { border-color: #1a237e; background: #e8eaf6; color: #1a237e; }
+    #file-input { display: none; }
+    #file-info { display: none; font-size: 11px; line-height: 1.6; background: #f9f9f9; padding: 6px 8px; border-radius: 3px; margin-top: 6px; }
+    .info-row { display: flex; justify-content: space-between; }
+    .warning { color: #e65100; font-size: 10px; }
+    .warnings { margin-top: 4px; border-top: 1px solid #ffc107; padding-top: 4px; }
+
+    /* Form controls */
+    label { font-size: 11px; display: block; margin-bottom: 2px; color: #555; }
+    input[type="number"], input[type="text"], select { width: 100%; padding: 4px 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; }
+    .form-row { display: flex; gap: 6px; margin-bottom: 6px; }
+    .form-row > div { flex: 1; }
+
+    /* Buttons */
+    button { padding: 5px 12px; border: 1px solid #bbb; border-radius: 3px; background: #f5f5f5; cursor: pointer; font-size: 12px; }
+    button:hover { background: #e0e0e0; }
+    .btn-primary { background: #1a237e; color: #fff; border-color: #1a237e; }
+    .btn-primary:hover { background: #283593; }
+    .btn-small { padding: 2px 8px; font-size: 11px; }
+
+    /* Manual input tables */
+    .manual-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 6px; }
+    .manual-table th { background: #f0f0f0; padding: 3px 4px; text-align: left; font-size: 10px; }
+    .manual-table td { padding: 2px; }
+    .manual-table input { font-size: 11px; }
+
+    /* Stats panel */
+    #stats-panel { display: none; font-size: 11px; line-height: 1.8; }
+    .stat-row { display: flex; justify-content: space-between; padding: 1px 0; border-bottom: 1px solid #f0f0f0; }
+    .tool-stat { padding-left: 10px; font-size: 10px; color: #666; }
+
+    /* Right panel */
+    .right-panel { flex: 1; display: flex; flex-direction: column; background: #fff; }
+
+    /* Tabs */
+    .tab-bar { display: flex; border-bottom: 1px solid #ddd; background: #fafafa; }
+    .tab-btn { padding: 6px 16px; border: none; background: none; cursor: pointer; font-size: 12px; color: #666; border-bottom: 2px solid transparent; }
+    .tab-btn:hover { color: #333; }
+    .tab-btn.active { color: #1a237e; border-bottom-color: #1a237e; font-weight: 600; }
+
+    /* Canvas */
+    .canvas-container { flex: 1; position: relative; overflow: hidden; }
+    #main-canvas { width: 100%; height: 100%; display: block; }
+
+    /* Animation controls */
+    #anim-controls { display: none; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.9); padding: 6px 12px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); gap: 6px; align-items: center; }
+    #anim-controls button { padding: 3px 10px; }
+
+    /* G-code output area */
+    .gcode-panel { border-top: 1px solid #ddd; background: #fafafa; }
+    .gcode-header { display: flex; justify-content: space-between; align-items: center; padding: 4px 10px; background: #f0f0f0; font-size: 12px; font-weight: 600; }
+    #gcode-output { width: 100%; height: 150px; font-family: 'Courier New', monospace; font-size: 11px; padding: 6px; border: none; resize: vertical; display: none; }
+    #gcode-validation { padding: 2px 10px; font-size: 11px; }
+
+    /* Status bar */
+    #status-bar { padding: 4px 12px; background: #e8eaf6; font-size: 11px; color: #333; border-top: 1px solid #c5cae9; min-height: 22px; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .main { flex-direction: column; }
+      .left-panel { width: 100%; max-height: 40vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>CNC-Tools — Drill Optimizer</h1>
+    <a href="https://github.com/Michael-VT/CNC-Tools" target="_blank">GitHub</a>
+  </div>
+
+  <div class="main">
+    <!-- Left Panel: Controls -->
+    <div class="left-panel">
+
+      <!-- File Upload -->
+      <div class="panel-section">
+        <div class="panel-section-header">Load Excellon File</div>
+        <div class="panel-section-body">
+          <div id="drop-zone">
+            Drop .drl file here or click to browse
+          </div>
+          <input type="file" id="file-input" accept=".drl,.xln,.exc,.txt,.nc,.tap">
+          <div id="file-info"></div>
+        </div>
+      </div>
+
+      <!-- Manual Input -->
+      <div class="panel-section">
+        <div class="panel-section-header">Manual Input</div>
+        <div class="panel-section-body">
+          <label>Tools:</label>
+          <table class="manual-table">
+            <thead><tr><th>#</th><th>Dia (mm)</th><th></th></tr></thead>
+            <tbody id="manual-tools-body">
+              <tr>
+                <td><input type="number" class="tool-num" value="1" min="1" style="width:50px"></td>
+                <td><input type="number" class="tool-dia" value="0.8" step="0.1" style="width:80px"></td>
+                <td><button onclick="this.closest('tr').remove()" class="btn-small" style="width:30px">x</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <button id="add-tool-btn" class="btn-small">+ Tool</button>
+
+          <label style="margin-top:8px">Holes:</label>
+          <table class="manual-table">
+            <thead><tr><th>X</th><th>Y</th><th>Tool#</th><th></th></tr></thead>
+            <tbody id="manual-holes-body">
+              <tr>
+                <td><input type="number" class="hole-x" value="10" step="0.1" style="width:70px"></td>
+                <td><input type="number" class="hole-y" value="10" step="0.1" style="width:70px"></td>
+                <td><input type="number" class="hole-tool" value="1" min="1" style="width:50px"></td>
+                <td><button onclick="this.closest('tr').remove()" class="btn-small" style="width:30px">x</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <button id="add-hole-btn" class="btn-small">+ Hole</button>
+
+          <div style="margin-top:8px">
+            <button id="load-manual-btn" class="btn-primary">Load Manual Data</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Optimization Settings -->
+      <div class="panel-section">
+        <div class="panel-section-header">Optimization</div>
+        <div class="panel-section-body">
+          <div class="form-row">
+            <div>
+              <label>2-opt iterations</label>
+              <input type="number" id="max-iterations" value="200" min="1" max="5000">
+            </div>
+            <div>
+              <label>Time limit (ms)</label>
+              <input type="number" id="time-limit" value="5000" min="100" max="60000" step="100">
+            </div>
+          </div>
+          <button id="optimize-btn" class="btn-primary" style="width:100%">Optimize Path</button>
+        </div>
+      </div>
+
+      <!-- G-code Settings -->
+      <div class="panel-section">
+        <div class="panel-section-header">G-code Settings</div>
+        <div class="panel-section-body">
+          <div class="form-row">
+            <div>
+              <label>Feed rate (mm/min)</label>
+              <input type="number" id="feed-rate" value="400" min="1">
+            </div>
+            <div>
+              <label>Plunge rate (mm/min)</label>
+              <input type="number" id="plunge-rate" value="100" min="1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label>Drill depth (mm)</label>
+              <input type="number" id="drill-depth" value="-2.0" step="0.1">
+            </div>
+            <div>
+              <label>Safe height (mm)</label>
+              <input type="number" id="safe-height" value="20" min="1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label>Spindle RPM</label>
+              <input type="number" id="spindle-speed" value="10000" min="1000" step="1000">
+            </div>
+            <div style="display:flex;align-items:flex-end;padding-bottom:4px">
+              <label><input type="checkbox" id="use-dwell"> Dwell at bottom</label>
+            </div>
+          </div>
+          <button id="generate-btn" class="btn-primary" style="width:100%">Generate G-code</button>
+        </div>
+      </div>
+
+      <!-- Statistics -->
+      <div class="panel-section">
+        <div class="panel-section-header">Statistics</div>
+        <div class="panel-section-body">
+          <div id="stats-panel">Load data and optimize to see statistics</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Panel: Visualization + G-code -->
+    <div class="right-panel">
+
+      <!-- Tab bar -->
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="original">Original</button>
+        <button class="tab-btn" data-tab="optimized">Optimized</button>
+        <button class="tab-btn" data-tab="comparison">Comparison</button>
+        <button class="tab-btn" data-tab="animation">Animation</button>
+      </div>
+
+      <!-- Canvas -->
+      <div class="canvas-container">
+        <canvas id="main-canvas"></canvas>
+        <div id="anim-controls">
+          <button id="anim-reset-btn">&#9194;</button>
+          <button id="anim-step-btn">&#9197;</button>
+          <button id="anim-play-btn">&#9654;</button>
+          <button id="anim-pause-btn">&#10074;&#10074;</button>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px">
+            Speed:
+            <input type="range" id="anim-speed" min="10" max="500" value="50" style="width:80px">
+          </label>
+        </div>
+      </div>
+
+      <!-- G-code output -->
+      <div class="gcode-panel">
+        <div class="gcode-header">
+          <span>G-code Output (editable)</span>
+          <div style="display:flex;gap:4px">
+            <button id="copy-gcode-btn" class="btn-small">Copy</button>
+            <button id="download-gcode-btn" class="btn-small">Download .nc</button>
+          </div>
+        </div>
+        <textarea id="gcode-output" placeholder="G-code will appear here after generation. You can edit it before saving."></textarea>
+        <div id="gcode-validation"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="status-bar">Ready — load an Excellon drill file or enter holes manually</div>
+
+  <!-- Scripts -->
+  <script src="js/excellon_parser.js"></script>
+  <script src="js/drill_optimizer.js"></script>
+  <script src="js/visualization.js"></script>
+  <script src="js/gcode_generator.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
