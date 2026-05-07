@@ -11,6 +11,29 @@ This program CNC-Tools created using Delphi 6.0, the compiled program and source
 <br />
 
 The program uses specified parameters to generate G-code for CNC machine. There are possibilities to select rectangular blocks or rectangular cuttings using specified contours. The programs doesnt checks any selection or or boundary conditions and therefore can lead to unexpected errors, so please be careful!
+
+<br />
+
+---
+
+## PCB Drill Optimizer — Browser Version
+
+> **[:open_file_folder: drill_optimizer/](drill_optimizer/)** — open `drill_optimizer.html` in any browser, no installation required
+
+A new browser-based tool for optimizing PCB drilling paths. It reads Excellon drill files, optimizes the hole drilling order using the Nearest Neighbor + 2-opt algorithm, visualizes the path with animation, and generates editable G-code. Also includes a Python CLI for batch processing.
+
+**Features:**
+- Excellon drill file parser (metric/imperial)
+- Path optimization (Nearest Neighbor + 2-opt) — minimizes travel distance
+- Multi-tool support with minimal tool changes
+- Canvas visualization with step-by-step animation
+- Editable G-code output (Grbl, Mach3, LinuxCNC compatible)
+- Multilingual UI (English, Українська, Русский, Português, Deutsch, Français)
+- Python CLI for automation
+
+**Documentation:** [English](drill_optimizer/README.md) | [Українська](drill_optimizer/README.UA.md) | [Русский](drill_optimizer/README.RU.md) | [Português](drill_optimizer/README.PT.md) | [Deutsch](drill_optimizer/README.DE.md) | [Français](drill_optimizer/README.FR.md)
+
+---
 >Программа по заданным параметрам выдаёт G-code для станка с ЧПУ. Возможны варианты выборки прямоугольной ниши или вырезания прямоугольника по контуру. Программа не отслеживает ошибки и краевые условия и может из за них слетать, поэтому будьте внимательны!
 
 <br />
