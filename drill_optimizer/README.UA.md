@@ -1,5 +1,7 @@
 # PCB Drill Optimizer
 
+**Документація іншими мовами:** [English](README.md) | [Русский](README.RU.md) | [Português](README.PT.md) | [Deutsch](README.DE.md) | [Français](README.FR.md)
+
 Оптимізує траєкторію свердління для виробництва друкованих плат шляхом мінімізації відстані переміщення верстата з ЧПК. Частина проєкту [CNC-Tools](https://github.com/Michael-VT/CNC-Tools).
 
 ## Можливості

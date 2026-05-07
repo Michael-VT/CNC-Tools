@@ -1,5 +1,7 @@
 # PCB Drill Optimizer
 
+**Documentação em outros idiomas:** [English](README.md) | [Українська](README.UA.md) | [Русский](README.RU.md) | [Deutsch](README.DE.md) | [Français](README.FR.md)
+
 Otimiza o caminho de furação para fabricação de PCBs, minimizando a distância de deslocamento da máquina CNC. Parte do projeto [CNC-Tools](https://github.com/Michael-VT/CNC-Tools).
 
 ## Funcionalidades

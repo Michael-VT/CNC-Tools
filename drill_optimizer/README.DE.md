@@ -1,5 +1,7 @@
 # PCB Bohrer-Optimierer
 
+**Dokumentation in anderen Sprachen:** [English](README.md) | [Українська](README.UA.md) | [Русский](README.RU.md) | [Português](README.PT.md) | [Français](README.FR.md)
+
 Optimiert den Bohrpfad fuer die PCB-Fertigung durch Minimierung der Verfahrwege der CNC-Maschine. Teil von [CNC-Tools](https://github.com/Michael-VT/CNC-Tools).
 
 ## Funktionen

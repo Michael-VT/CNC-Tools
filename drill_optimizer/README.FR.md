@@ -1,5 +1,7 @@
 # PCB Drill Optimizer
 
+**Documentation dans d'autres langues :** [English](README.md) | [Українська](README.UA.md) | [Русский](README.RU.md) | [Português](README.PT.md) | [Deutsch](README.DE.md)
+
 Optimise le parcours de perçage pour la fabrication de circuits imprimés (PCB) en minimisant la distance de déplacement de la machine CNC. Fait partie de [CNC-Tools](https://github.com/Michael-VT/CNC-Tools).
 
 ## Fonctionnalités

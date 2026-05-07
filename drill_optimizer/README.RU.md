@@ -1,5 +1,7 @@
 # PCB Drill Optimizer
 
+**Документация на других языках:** [English](README.md) | [Українська](README.UA.md) | [Português](README.PT.md) | [Deutsch](README.DE.md) | [Français](README.FR.md)
+
 Оптимизирует траекторию сверления для производства печатных плат (PCB) путём минимизации расстояния холостого перемещения станка с ЧПУ. Часть проекта [CNC-Tools](https://github.com/Michael-VT/CNC-Tools).
 
 ## Возможности

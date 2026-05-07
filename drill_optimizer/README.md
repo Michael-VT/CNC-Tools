@@ -1,5 +1,8 @@
 # PCB Drill Optimizer
 
+**Documentation in other languages / Dokumentation in anderen Sprachen:**
+[Українська](README.UA.md) | [Русский](README.RU.md) | [Português](README.PT.md) | [Deutsch](README.DE.md) | [Français](README.FR.md)
+
 Optimizes drilling path for PCB manufacturing by minimizing CNC machine travel distance. Part of [CNC-Tools](https://github.com/Michael-VT/CNC-Tools).
 
 ## Features

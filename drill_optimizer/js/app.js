@@ -3,17 +3,17 @@
  *
  * Wires up ExcellonParser, DrillOptimizer, Visualization, and GCodeGenerator.
  * Manages UI state, file loading, and user interactions.
+ * Uses I18n module for multilingual support.
  */
 
 const App = (() => {
-  let drillData = null;      // Parsed Excellon data
-  let optimizationResult = null;  // Optimized result
-  let animator = null;       // Animation controller
-
-  // Original path segments for comparison
+  let drillData = null;
+  let optimizationResult = null;
+  let animator = null;
   let originalSegments = null;
 
   function init() {
+    I18n.init();
     setupFileUpload();
     setupManualInput();
     setupControls();
@@ -27,32 +27,21 @@ const App = (() => {
   function setupFileUpload() {
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
-
     if (!dropZone || !fileInput) return;
 
     dropZone.addEventListener('dragover', (e) => {
       e.preventDefault();
       dropZone.classList.add('drag-over');
     });
-
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('drag-over');
-    });
-
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropZone.classList.remove('drag-over');
-      if (e.dataTransfer.files.length > 0) {
-        loadFile(e.dataTransfer.files[0]);
-      }
+      if (e.dataTransfer.files.length > 0) loadFile(e.dataTransfer.files[0]);
     });
-
     dropZone.addEventListener('click', () => fileInput.click());
-
     fileInput.addEventListener('change', () => {
-      if (fileInput.files.length > 0) {
-        loadFile(fileInput.files[0]);
-      }
+      if (fileInput.files.length > 0) loadFile(fileInput.files[0]);
     });
   }
 
@@ -63,9 +52,9 @@ const App = (() => {
         drillData = ExcellonParser.parse(e.target.result);
         drillData.source = file.name;
         showFileInfo();
-        showStatus(`Loaded: ${file.name} — ${drillData.holes.length} holes, ${drillData.tools.length} tools`);
+        showStatus(I18n.t('msgLoaded', { name: file.name, holes: drillData.holes.length, tools: drillData.tools.length }));
       } catch (err) {
-        showStatus(`Error parsing file: ${err.message}`, true);
+        showStatus(I18n.t('msgParseError', { err: err.message }), true);
       }
     };
     reader.readAsText(file);
@@ -73,17 +62,16 @@ const App = (() => {
 
   function showFileInfo() {
     if (!drillData) return;
-
     const info = document.getElementById('file-info');
     if (!info) return;
 
     info.innerHTML = `
-      <div class="info-row"><strong>File:</strong> ${drillData.source || 'manual'}</div>
-      <div class="info-row"><strong>Units:</strong> ${drillData.units}</div>
-      <div class="info-row"><strong>Format:</strong> ${drillData.formatTuple ? drillData.formatTuple.join('.') : 'auto'}</div>
-      <div class="info-row"><strong>Zero suppression:</strong> ${drillData.zeroSuppression}</div>
-      <div class="info-row"><strong>Tools:</strong> ${drillData.tools.length}</div>
-      <div class="info-row"><strong>Holes:</strong> ${drillData.holes.length}</div>
+      <div class="info-row"><strong>${I18n.t('lblFile')}</strong> ${drillData.source || 'manual'}</div>
+      <div class="info-row"><strong>${I18n.t('lblUnits')}</strong> ${drillData.units}</div>
+      <div class="info-row"><strong>${I18n.t('lblFormat')}</strong> ${drillData.formatTuple ? drillData.formatTuple.join('.') : 'auto'}</div>
+      <div class="info-row"><strong>${I18n.t('lblZeroSup')}</strong> ${drillData.zeroSuppression}</div>
+      <div class="info-row"><strong>${I18n.t('lblToolsCount')}</strong> ${drillData.tools.length}</div>
+      <div class="info-row"><strong>${I18n.t('lblHolesCount')}</strong> ${drillData.holes.length}</div>
       ${drillData.warnings.length > 0 ? `<div class="warnings">${drillData.warnings.map(w => `<div class="warning">${w}</div>`).join('')}</div>` : ''}
     `;
     info.style.display = 'block';
@@ -95,7 +83,6 @@ const App = (() => {
     const addToolBtn = document.getElementById('add-tool-btn');
     const addHoleBtn = document.getElementById('add-hole-btn');
     const loadManualBtn = document.getElementById('load-manual-btn');
-
     if (addToolBtn) addToolBtn.addEventListener('click', addManualTool);
     if (addHoleBtn) addHoleBtn.addEventListener('click', addManualHole);
     if (loadManualBtn) loadManualBtn.addEventListener('click', loadManualData);
@@ -132,9 +119,7 @@ const App = (() => {
     for (const row of toolRows) {
       const num = parseInt(row.querySelector('.tool-num').value);
       const dia = parseFloat(row.querySelector('.tool-dia').value);
-      if (num && dia > 0) {
-        tools.push({ number: num, diameter: dia, unit: 'metric' });
-      }
+      if (num && dia > 0) tools.push({ number: num, diameter: dia, unit: 'metric' });
     }
 
     const holeRows = document.querySelectorAll('#manual-holes-body tr');
@@ -142,33 +127,24 @@ const App = (() => {
       const x = parseFloat(row.querySelector('.hole-x').value);
       const y = parseFloat(row.querySelector('.hole-y').value);
       const t = parseInt(row.querySelector('.hole-tool').value);
-      if (!isNaN(x) && !isNaN(y) && t) {
-        holes.push({ x, y, tool: t });
-      }
+      if (!isNaN(x) && !isNaN(y) && t) holes.push({ x, y, tool: t });
     }
 
     if (tools.length === 0 || holes.length === 0) {
-      showStatus('Add at least one tool and one hole', true);
+      showStatus(I18n.t('msgAddData'), true);
       return;
     }
 
     drillData = {
-      tools,
-      holes,
-      units: 'metric',
-      formatTuple: [3, 3],
-      zeroSuppression: 'leading',
-      source: 'manual',
-      warnings: []
+      tools, holes, units: 'metric', formatTuple: [3, 3],
+      zeroSuppression: 'leading', source: 'manual', warnings: []
     };
-
-    // Add hit counts
     for (const tool of drillData.tools) {
       tool.hitCount = drillData.holes.filter(h => h.tool === tool.number).length;
     }
 
     showFileInfo();
-    showStatus(`Manual data loaded: ${holes.length} holes, ${tools.length} tools`);
+    showStatus(I18n.t('msgManualLoaded', { holes: holes.length, tools: tools.length }));
   }
 
   // ---- Controls ----
@@ -184,7 +160,6 @@ const App = (() => {
     if (copyBtn) copyBtn.addEventListener('click', copyGCode);
     if (downloadBtn) downloadBtn.addEventListener('click', downloadGCode);
 
-    // Animation controls
     const playBtn = document.getElementById('anim-play-btn');
     const pauseBtn = document.getElementById('anim-pause-btn');
     const stepBtn = document.getElementById('anim-step-btn');
@@ -198,31 +173,19 @@ const App = (() => {
     if (speedSlider) speedSlider.addEventListener('input', () => {
       if (animator) animator.setSpeed(parseInt(speedSlider.value));
     });
-
-    // Coordinate format override
-    const fmtSelect = document.getElementById('coord-format');
-    const zsSelect = document.getElementById('zero-suppression');
-    const reparseBtn = document.getElementById('reparse-btn');
-
-    if (reparseBtn) reparseBtn.addEventListener('click', () => {
-      if (!drillData) return;
-      // This would need to re-parse from the original file text
-      showStatus('Re-parse: reload the file to apply format changes');
-    });
   }
 
   function runOptimization() {
     if (!drillData || drillData.holes.length === 0) {
-      showStatus('Load a drill file or enter manual data first', true);
+      showStatus(I18n.t('msgNoData'), true);
       return;
     }
 
     const maxIter = parseInt(document.getElementById('max-iterations')?.value || '200');
     const timeLimit = parseInt(document.getElementById('time-limit')?.value || '5000');
 
-    showStatus('Optimizing...');
+    showStatus(I18n.t('msgOptimizing'));
 
-    // Use setTimeout to let UI update
     setTimeout(() => {
       try {
         optimizationResult = DrillOptimizer.optimize(drillData, {
@@ -230,16 +193,15 @@ const App = (() => {
           timeLimitMs: timeLimit
         });
 
-        // Build original path segments for comparison
-        originalSegments = DrillOptimizer.buildPathSegments
-          ? DrillOptimizer.buildPathSegments(drillData.holes, [])
-          : buildOriginalSegments(drillData.holes);
-
+        originalSegments = buildOriginalSegments(drillData.holes);
         showStatistics();
         showOptimizedPath();
-        showStatus(`Optimized! Distance: ${optimizationResult.totalDistance.toFixed(1)}mm (saved ${optimizationResult.improvement.toFixed(1)}%)`);
+        showStatus(I18n.t('msgOptimized', {
+          dist: optimizationResult.totalDistance.toFixed(1),
+          pct: optimizationResult.improvement.toFixed(1)
+        }));
       } catch (err) {
-        showStatus(`Optimization error: ${err.message}`, true);
+        showStatus(I18n.t('msgParseError', { err: err.message }), true);
         console.error(err);
       }
     }, 50);
@@ -249,18 +211,8 @@ const App = (() => {
     const segments = [];
     let current = { x: 0, y: 0 };
     for (const hole of holes) {
-      segments.push({
-        from: { ...current },
-        to: { x: hole.x, y: hole.y },
-        type: 'rapid',
-        tool: hole.tool
-      });
-      segments.push({
-        from: { x: hole.x, y: hole.y },
-        to: { x: hole.x, y: hole.y },
-        type: 'drill',
-        tool: hole.tool
-      });
+      segments.push({ from: { ...current }, to: { x: hole.x, y: hole.y }, type: 'rapid', tool: hole.tool });
+      segments.push({ from: { x: hole.x, y: hole.y }, to: { x: hole.x, y: hole.y }, type: 'drill', tool: hole.tool });
       current = { x: hole.x, y: hole.y };
     }
     return segments;
@@ -268,7 +220,7 @@ const App = (() => {
 
   function generateGCode() {
     if (!optimizationResult) {
-      showStatus('Run optimization first', true);
+      showStatus(I18n.t('msgNoResult'), true);
       return;
     }
 
@@ -289,37 +241,34 @@ const App = (() => {
       textarea.style.display = 'block';
     }
 
-    // Validate
     const issues = GCodeGenerator.validate(gcode);
     const validationDiv = document.getElementById('gcode-validation');
     if (validationDiv) {
       if (issues.length === 0) {
-        validationDiv.innerHTML = '<span style="color:green">G-code validated OK</span>';
+        validationDiv.innerHTML = `<span style="color:green">${I18n.t('validatedOk')}</span>`;
       } else {
         validationDiv.innerHTML = issues.map(i => `<div style="color:orange">${i}</div>`).join('');
       }
     }
 
-    showStatus(`G-code generated: ${gcode.split('\n').length} lines`);
+    showStatus(I18n.t('msgGcodeGenerated', { lines: gcode.split('\n').length }));
   }
 
   function copyGCode() {
     const textarea = document.getElementById('gcode-output');
     if (!textarea || !textarea.value) return;
-
     navigator.clipboard.writeText(textarea.value).then(() => {
-      showStatus('G-code copied to clipboard');
+      showStatus(I18n.t('msgGcodeCopied'));
     }).catch(() => {
       textarea.select();
       document.execCommand('copy');
-      showStatus('G-code copied to clipboard');
+      showStatus(I18n.t('msgGcodeCopied'));
     });
   }
 
   function downloadGCode() {
     const textarea = document.getElementById('gcode-output');
     if (!textarea || !textarea.value) return;
-
     const blob = new Blob([textarea.value], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -333,76 +282,40 @@ const App = (() => {
 
   function showOptimizedPath() {
     if (!optimizationResult) return;
-
     const canvas = document.getElementById('main-canvas');
     if (!canvas) return;
-
     resizeCanvas();
-    DrillVisualization.drawPath(
-      canvas,
-      optimizationResult.orderedHoles,
-      optimizationResult.pathSegments,
-      drillData.tools,
-      { showOrder: optimizationResult.orderedHoles.length <= 100 }
-    );
+    DrillVisualization.drawPath(canvas, optimizationResult.orderedHoles, optimizationResult.pathSegments, drillData.tools, { showOrder: optimizationResult.orderedHoles.length <= 100 });
   }
 
   function showOriginalPath() {
     if (!drillData) return;
-
     const canvas = document.getElementById('main-canvas');
     if (!canvas) return;
-
     resizeCanvas();
-    DrillVisualization.drawPath(
-      canvas,
-      drillData.holes,
-      originalSegments,
-      drillData.tools,
-      { showOrder: drillData.holes.length <= 100 }
-    );
+    DrillVisualization.drawPath(canvas, drillData.holes, originalSegments, drillData.tools, { showOrder: drillData.holes.length <= 100 });
   }
 
   function showComparison() {
     if (!drillData || !optimizationResult) return;
-
     const canvas = document.getElementById('main-canvas');
     if (!canvas) return;
-
     resizeCanvas();
-    DrillVisualization.drawComparison(
-      canvas,
-      drillData.holes,
-      optimizationResult.orderedHoles,
-      originalSegments,
-      optimizationResult.pathSegments,
-      drillData.tools
-    );
+    DrillVisualization.drawComparison(canvas, drillData.holes, optimizationResult.orderedHoles, originalSegments, optimizationResult.pathSegments, drillData.tools);
   }
 
   function showAnimation() {
     if (!optimizationResult) return;
-
     const canvas = document.getElementById('main-canvas');
     if (!canvas) return;
-
     resizeCanvas();
-    animator = DrillVisualization.createAnimator(
-      canvas,
-      optimizationResult.orderedHoles,
-      optimizationResult.pathSegments,
-      drillData.tools
-    );
-
+    animator = DrillVisualization.createAnimator(canvas, optimizationResult.orderedHoles, optimizationResult.pathSegments, drillData.tools);
     updateAnimControls();
   }
 
   function updateAnimControls() {
     const controls = document.getElementById('anim-controls');
-    if (controls && animator) {
-      const state = animator.getState();
-      controls.style.display = 'flex';
-    }
+    if (controls && animator) controls.style.display = 'flex';
   }
 
   // ---- Tabs ----
@@ -413,7 +326,6 @@ const App = (() => {
       tab.addEventListener('click', () => {
         tabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-
         const target = tab.dataset.tab;
         if (target === 'original') showOriginalPath();
         else if (target === 'optimized') showOptimizedPath();
@@ -428,33 +340,18 @@ const App = (() => {
   function showStatistics() {
     const statsDiv = document.getElementById('stats-panel');
     if (!statsDiv || !optimizationResult) return;
-
     const r = optimizationResult;
+    const hu = I18n.t('statHolesUnit');
     statsDiv.innerHTML = `
-      <div class="stat-row">
-        <span>Total holes:</span>
-        <strong>${r.orderedHoles.length}</strong>
-      </div>
-      <div class="stat-row">
-        <span>Original distance:</span>
-        <strong>${r.originalDistance.toFixed(1)} mm</strong>
-      </div>
-      <div class="stat-row">
-        <span>Optimized distance:</span>
-        <strong style="color:#2e7d32">${r.totalDistance.toFixed(1)} mm</strong>
-      </div>
-      <div class="stat-row">
-        <span>Improvement:</span>
-        <strong style="color:#2e7d32">${r.improvement.toFixed(1)}%</strong>
-      </div>
-      <div class="stat-row">
-        <span>Tool changes:</span>
-        <strong>${r.toolChanges}</strong>
-      </div>
+      <div class="stat-row"><span>${I18n.t('statTotalHoles')}</span><strong>${r.orderedHoles.length}</strong></div>
+      <div class="stat-row"><span>${I18n.t('statOrigDist')}</span><strong>${r.originalDistance.toFixed(1)} mm</strong></div>
+      <div class="stat-row"><span>${I18n.t('statOptDist')}</span><strong style="color:#2e7d32">${r.totalDistance.toFixed(1)} mm</strong></div>
+      <div class="stat-row"><span>${I18n.t('statImprovement')}</span><strong style="color:#2e7d32">${r.improvement.toFixed(1)}%</strong></div>
+      <div class="stat-row"><span>${I18n.t('statToolChanges')}</span><strong>${r.toolChanges}</strong></div>
       ${r.toolStats.map(ts => `
         <div class="stat-row tool-stat">
           <span>T${String(ts.toolNumber).padStart(2, '0')} Ø${ts.diameter.toFixed(2)}mm:</span>
-          <span>${ts.hitCount} holes, ${ts.subPathDistance.toFixed(1)}mm</span>
+          <span>${ts.hitCount} ${hu}, ${ts.subPathDistance.toFixed(1)}mm</span>
         </div>
       `).join('')}
     `;
@@ -466,7 +363,6 @@ const App = (() => {
   function resizeCanvas() {
     const canvas = document.getElementById('main-canvas');
     if (!canvas) return;
-
     const container = canvas.parentElement;
     if (container) {
       canvas.width = container.clientWidth;

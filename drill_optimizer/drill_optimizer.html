@@ -10,8 +10,18 @@
 
     /* Header */
     .header { background: #1a237e; color: #fff; padding: 8px 16px; display: flex; align-items: center; gap: 12px; }
-    .header h1 { font-size: 16px; font-weight: 600; }
+    .header h1 { font-size: 16px; font-weight: 600; flex: 1; }
     .header a { color: #90caf9; text-decoration: none; font-size: 12px; }
+
+    /* Language selector */
+    .lang-selector { position: relative; }
+    #lang-btn { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 3px; padding: 3px 10px; cursor: pointer; font-size: 11px; display: flex; align-items: center; gap: 4px; }
+    #lang-btn:hover { background: rgba(255,255,255,0.25); }
+    #lang-label { pointer-events: none; }
+    #lang-dropdown { display: none; position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; min-width: 130px; margin-top: 2px; }
+    .lang-option { padding: 6px 12px; font-size: 12px; color: #333; cursor: pointer; }
+    .lang-option:hover { background: #e8eaf6; }
+    .lang-option.active { font-weight: 600; color: #1a237e; background: #f5f5ff; }
 
     /* Main layout */
     .main { display: flex; height: calc(100vh - 36px); }
@@ -91,7 +101,12 @@
 <body>
 
   <div class="header">
-    <h1>CNC-Tools — Drill Optimizer</h1>
+    <img src="drill_optimizer.png" alt="CNC-Tools" style="height:24px;border-radius:3px" onerror="this.style.display='none'">
+    <h1 data-i18n="appTitle">CNC-Tools — Drill Optimizer</h1>
+    <div class="lang-selector">
+      <button id="lang-btn"><span id="lang-label">English</span> &#9662;</button>
+      <div id="lang-dropdown"></div>
+    </div>
     <a href="https://github.com/Michael-VT/CNC-Tools" target="_blank">GitHub</a>
   </div>
 
@@ -101,11 +116,9 @@
 
       <!-- File Upload -->
       <div class="panel-section">
-        <div class="panel-section-header">Load Excellon File</div>
+        <div class="panel-section-header" data-i18n="secLoadFile">Load Excellon File</div>
         <div class="panel-section-body">
-          <div id="drop-zone">
-            Drop .drl file here or click to browse
-          </div>
+          <div id="drop-zone" data-i18n="dropZone">Drop .drl file here or click to browse</div>
           <input type="file" id="file-input" accept=".drl,.xln,.exc,.txt,.nc,.tap">
           <div id="file-info"></div>
         </div>
@@ -113,11 +126,15 @@
 
       <!-- Manual Input -->
       <div class="panel-section">
-        <div class="panel-section-header">Manual Input</div>
+        <div class="panel-section-header" data-i18n="secManual">Manual Input</div>
         <div class="panel-section-body">
-          <label>Tools:</label>
+          <label data-i18n="lblTools">Tools:</label>
           <table class="manual-table">
-            <thead><tr><th>#</th><th>Dia (mm)</th><th></th></tr></thead>
+            <thead><tr>
+              <th data-i18n="thNum">#</th>
+              <th data-i18n="thDia">Dia (mm)</th>
+              <th></th>
+            </tr></thead>
             <tbody id="manual-tools-body">
               <tr>
                 <td><input type="number" class="tool-num" value="1" min="1" style="width:50px"></td>
@@ -126,11 +143,16 @@
               </tr>
             </tbody>
           </table>
-          <button id="add-tool-btn" class="btn-small">+ Tool</button>
+          <button id="add-tool-btn" class="btn-small" data-i18n="btnAddTool">+ Tool</button>
 
-          <label style="margin-top:8px">Holes:</label>
+          <label style="margin-top:8px" data-i18n="lblHoles">Holes:</label>
           <table class="manual-table">
-            <thead><tr><th>X</th><th>Y</th><th>Tool#</th><th></th></tr></thead>
+            <thead><tr>
+              <th data-i18n="thX">X</th>
+              <th data-i18n="thY">Y</th>
+              <th data-i18n="thTool">Tool#</th>
+              <th></th>
+            </tr></thead>
             <tbody id="manual-holes-body">
               <tr>
                 <td><input type="number" class="hole-x" value="10" step="0.1" style="width:70px"></td>
@@ -140,74 +162,74 @@
               </tr>
             </tbody>
           </table>
-          <button id="add-hole-btn" class="btn-small">+ Hole</button>
+          <button id="add-hole-btn" class="btn-small" data-i18n="btnAddHole">+ Hole</button>
 
           <div style="margin-top:8px">
-            <button id="load-manual-btn" class="btn-primary">Load Manual Data</button>
+            <button id="load-manual-btn" class="btn-primary" data-i18n="btnLoadManual">Load Manual Data</button>
           </div>
         </div>
       </div>
 
       <!-- Optimization Settings -->
       <div class="panel-section">
-        <div class="panel-section-header">Optimization</div>
+        <div class="panel-section-header" data-i18n="secOptimization">Optimization</div>
         <div class="panel-section-body">
           <div class="form-row">
             <div>
-              <label>2-opt iterations</label>
+              <label data-i18n="lbl2optIter">2-opt iterations</label>
               <input type="number" id="max-iterations" value="200" min="1" max="5000">
             </div>
             <div>
-              <label>Time limit (ms)</label>
+              <label data-i18n="lblTimeLimit">Time limit (ms)</label>
               <input type="number" id="time-limit" value="5000" min="100" max="60000" step="100">
             </div>
           </div>
-          <button id="optimize-btn" class="btn-primary" style="width:100%">Optimize Path</button>
+          <button id="optimize-btn" class="btn-primary" style="width:100%" data-i18n="btnOptimize">Optimize Path</button>
         </div>
       </div>
 
       <!-- G-code Settings -->
       <div class="panel-section">
-        <div class="panel-section-header">G-code Settings</div>
+        <div class="panel-section-header" data-i18n="secGcodeSettings">G-code Settings</div>
         <div class="panel-section-body">
           <div class="form-row">
             <div>
-              <label>Feed rate (mm/min)</label>
+              <label data-i18n="lblFeedRate">Feed rate (mm/min)</label>
               <input type="number" id="feed-rate" value="400" min="1">
             </div>
             <div>
-              <label>Plunge rate (mm/min)</label>
+              <label data-i18n="lblPlungeRate">Plunge rate (mm/min)</label>
               <input type="number" id="plunge-rate" value="100" min="1">
             </div>
           </div>
           <div class="form-row">
             <div>
-              <label>Drill depth (mm)</label>
+              <label data-i18n="lblDrillDepth">Drill depth (mm)</label>
               <input type="number" id="drill-depth" value="-2.0" step="0.1">
             </div>
             <div>
-              <label>Safe height (mm)</label>
+              <label data-i18n="lblSafeHeight">Safe height (mm)</label>
               <input type="number" id="safe-height" value="20" min="1">
             </div>
           </div>
           <div class="form-row">
             <div>
-              <label>Spindle RPM</label>
+              <label data-i18n="lblSpindleRPM">Spindle RPM</label>
               <input type="number" id="spindle-speed" value="10000" min="1000" step="1000">
             </div>
             <div style="display:flex;align-items:flex-end;padding-bottom:4px">
-              <label><input type="checkbox" id="use-dwell"> Dwell at bottom</label>
+              <label><input type="checkbox" id="use-dwell"> <span data-i18n="lblDwell">Dwell at bottom</span></label>
             </div>
           </div>
-          <button id="generate-btn" class="btn-primary" style="width:100%">Generate G-code</button>
+          <button id="generate-btn" class="btn-primary" style="width:100%" data-i18n="btnGenerate">Generate G-code</button>
         </div>
       </div>
 
       <!-- Statistics -->
       <div class="panel-section">
-        <div class="panel-section-header">Statistics</div>
+        <div class="panel-section-header" data-i18n="secStatistics">Statistics</div>
         <div class="panel-section-body">
-          <div id="stats-panel">Load data and optimize to see statistics</div>
+          <div id="stats-panel" data-i18n="statusReady">Load data and optimize to see statistics</div>
         </div>
       </div>
 
@@ -218,10 +240,10 @@
 
       <!-- Tab bar -->
       <div class="tab-bar">
-        <button class="tab-btn active" data-tab="original">Original</button>
-        <button class="tab-btn" data-tab="optimized">Optimized</button>
-        <button class="tab-btn" data-tab="comparison">Comparison</button>
-        <button class="tab-btn" data-tab="animation">Animation</button>
+        <button class="tab-btn active" data-tab="original" data-i18n="tabOriginal">Original</button>
+        <button class="tab-btn" data-tab="optimized" data-i18n="tabOptimized">Optimized</button>
+        <button class="tab-btn" data-tab="comparison" data-i18n="tabComparison">Comparison</button>
+        <button class="tab-btn" data-tab="animation" data-i18n="tabAnimation">Animation</button>
       </div>
 
       <!-- Canvas -->
@@ -233,7 +255,7 @@
           <button id="anim-play-btn">&#9654;</button>
           <button id="anim-pause-btn">&#10074;&#10074;</button>
           <label style="display:flex;align-items:center;gap:4px;font-size:11px">
-            Speed:
+            <span data-i18n="lblSpeed">Speed:</span>
             <input type="range" id="anim-speed" min="10" max="500" value="50" style="width:80px">
           </label>
         </div>
@@ -242,26 +264,27 @@
       <!-- G-code output -->
       <div class="gcode-panel">
         <div class="gcode-header">
-          <span>G-code Output (editable)</span>
+          <span data-i18n="gcodeHeader">G-code Output (editable)</span>
           <div style="display:flex;gap:4px">
-            <button id="copy-gcode-btn" class="btn-small">Copy</button>
-            <button id="download-gcode-btn" class="btn-small">Download .nc</button>
+            <button id="copy-gcode-btn" class="btn-small" data-i18n="btnCopy">Copy</button>
+            <button id="download-gcode-btn" class="btn-small" data-i18n="btnDownload">Download .nc</button>
           </div>
         </div>
-        <textarea id="gcode-output" placeholder="G-code will appear here after generation. You can edit it before saving."></textarea>
+        <textarea id="gcode-output" data-i18n="gcodePlaceholder" placeholder="G-code will appear here after generation. You can edit it before saving."></textarea>
         <div id="gcode-validation"></div>
       </div>
 
     </div>
   </div>
 
-  <div id="status-bar">Ready — load an Excellon drill file or enter holes manually</div>
+  <div id="status-bar" data-i18n="statusReady">Ready — load an Excellon drill file or enter holes manually</div>
 
-  <!-- Scripts -->
+  <!-- Scripts (i18n must load before app.js) -->
   <script src="js/excellon_parser.js"></script>
   <script src="js/drill_optimizer.js"></script>
   <script src="js/visualization.js"></script>
   <script src="js/gcode_generator.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/app.js"></script>
 
 </body>
