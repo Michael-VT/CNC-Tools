@@ -5,6 +5,11 @@
 
 Optimizes drilling path for PCB manufacturing by minimizing CNC machine travel distance. Part of [CNC-Tools](https://github.com/Michael-VT/CNC-Tools).
 
+### Screenshots
+
+![Drill Optimizer](CNC-Tools.png)
+![Drill Optimizer — Comparison](CNC-ToolsC.png)
+
 ## Features
 
 - **Path optimization** — Nearest Neighbor + 2-opt algorithm minimizes non-productive travel

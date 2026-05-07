@@ -22,6 +22,9 @@ The program uses specified parameters to generate G-code for CNC machine. There 
 
 A new browser-based tool for optimizing PCB drilling paths. It reads Excellon drill files, optimizes the hole drilling order using the Nearest Neighbor + 2-opt algorithm, visualizes the path with animation, and generates editable G-code. Also includes a Python CLI for batch processing.
 
+![Drill Optimizer](drill_optimizer/CNC-Tools.png)
+![Drill Optimizer — Comparison](drill_optimizer/CNC-ToolsC.png)
+
 **Features:**
 - Excellon drill file parser (metric/imperial)
 - Path optimization (Nearest Neighbor + 2-opt) — minimizes travel distance
