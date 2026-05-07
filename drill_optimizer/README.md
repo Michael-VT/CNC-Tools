@@ -31,7 +31,7 @@ Open `drill_optimizer.html` in a browser. No installation required.
 
 ### Screenshot
 
-![Drill Optimizer](../view02.png)
+![Drill Optimizer](drill_optimizer/CNC-Tools.png)
 
 ## Python CLI
 
